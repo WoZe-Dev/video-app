@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de la fonction de recherche améliorée</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 8px; text-align: left; }
+        .success { color: green; }
+        .error { color: red; }
+        .test-section { margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <h1>Test de la fonction de recherche améliorée</h1>
+    
+    <div class="test-section">
+        <h3>Tests avec accents :</h3>
+        <div id="accentTests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Tests avec nombres :</h3>
+        <div id="numberTests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Tests avec recherche multiple :</h3>
+        <div id="multipleTests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test de recherche interactive :</h3>
+        <input type="text" id="searchInput" placeholder="Tapez votre recherche ici..." style="padding: 10px; width: 300px;">
+        <div id="searchResults" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Fonction pour normaliser les chaînes de caractères (gère les accents et la casse)
+        function normalizeString(str) {
+            if (!str) return '';
+            
+            // Convertir en minuscules et normaliser les accents
+            return str.toLowerCase()
+                      .normalize('NFD') // Décompose les caractères accentués
+                      .replace(/[\u0300-\u036f]/g, '') // Supprime les diacritiques (accents)
+                      .replace(/[^\w\s\d]/gi, ' ') // Remplace les caractères spéciaux par des espaces (garde les chiffres)
+                      .replace(/\s+/g, ' ') // Remplace les espaces multiples par un seul
+                      .trim(); // Supprime les espaces en début/fin
+        }
+
+        // Fonction pour la recherche floue (pour les mots courts et erreurs de frappe)
+        function fuzzyMatch(text, term) {
+            if (term.length < 2) return false;
+            
+            // Recherche de sous-séquences
+            let termIndex = 0;
+            for (let i = 0; i < text.length && termIndex < term.length; i++) {
+                if (text[i] === term[termIndex]) {
+                    termIndex++;
+                }
+            }
+            
+            return termIndex === term.length;
+        }
+
+        function searchInContent(content, query) {
+            const searchTerms = normalizeString(query).split(' ').filter(term => term.length > 0);
+            const results = [];
+            
+            content.forEach(item => {
+                const normalizedTitle = normalizeString(item.title);
+                const normalizedGallery = normalizeString(item.gallery);
+                const combinedText = normalizedTitle + ' ' + normalizedGallery;
+                
+                // Recherche: au moins un des termes doit être trouvé
+                let isMatch = false;
+                let matchType = '';
+                
+                for (const term of searchTerms) {
+                    if (normalizedTitle.includes(term)) {
+                        isMatch = true;
+                        matchType = 'title';
+                        break;
+                    } else if (normalizedGallery.includes(term)) {
+                        isMatch = true;
+                        matchType = 'gallery';
+                        break;
+                    }
+                }
+                
+                // Si pas de correspondance directe, essayer la recherche fuzzy pour les mots courts
+                if (!isMatch && query.length <= 3) {
+                    for (const term of searchTerms) {
+                        if (fuzzyMatch(combinedText, term)) {
+                            isMatch = true;
+                            matchType = 'fuzzy';
+                            break;
+                        }
+                    }
+                }
+                
+                if (isMatch) {
+                    results.push({ ...item, matchType });
+                }
+            });
+            
+            return results;
+        }
+
+        // Données de test
+        const testContent = [
+            { title: "Vidéo à la montagne", gallery: "Vacances été 2024" },
+            { title: "Château de Versailles", gallery: "Voyage culturel" },
+            { title: "Noël en famille", gallery: "Fêtes 2023" },
+            { title: "Video 123", gallery: "Tests" },
+            { title: "Vacances 2024", gallery: "Été" },
+            { title: "Episode 01", gallery: "Série documentaire" },
+            { title: "Test 123ABC", gallery: "Développement" },
+            { title: "Pâques à Rome", gallery: "Vacances printemps" },
+            { title: "Café du matin", gallery: "Quotidien 2024" }
+        ];
+
+        // Tests avec accents
+        const accentTests = [
+            { query: "video", expectedCount: 2, description: "Recherche 'video' doit trouver 'Vidéo à la montagne' et 'Video 123'" },
+            { query: "chateau", expectedCount: 1, description: "Recherche 'chateau' doit trouver 'Château de Versailles'" },
+            { query: "ete", expectedCount: 2, description: "Recherche 'ete' doit trouver les titres avec 'été'" },
+            { query: "noel", expectedCount: 1, description: "Recherche 'noel' doit trouver 'Noël en famille'" },
+            { query: "paques", expectedCount: 1, description: "Recherche 'paques' doit trouver 'Pâques à Rome'" },
+            { query: "cafe", expectedCount: 1, description: "Recherche 'cafe' doit trouver 'Café du matin'" }
+        ];
+
+        // Tests avec nombres
+        const numberTests = [
+            { query: "123", expectedCount: 2, description: "Recherche '123' doit trouver 'Video 123' et 'Test 123ABC'" },
+            { query: "2024", expectedCount: 3, description: "Recherche '2024' doit trouver tous les contenus 2024" },
+            { query: "01", expectedCount: 1, description: "Recherche '01' doit trouver 'Episode 01'" },
+            { query: "123abc", expectedCount: 1, description: "Recherche '123abc' doit trouver 'Test 123ABC'" },
+            { query: "2023", expectedCount: 1, description: "Recherche '2023' doit trouver 'Fêtes 2023'" }
+        ];
+
+        // Tests avec recherche multiple
+        const multipleTests = [
+            { query: "vacances 2024", expectedCount: 2, description: "Recherche 'vacances 2024' doit trouver les deux contenus correspondants" },
+            { query: "video test", expectedCount: 3, description: "Recherche 'video test' doit trouver tous les vidéos et tests" },
+            { query: "famille noel", expectedCount: 1, description: "Recherche 'famille noel' doit trouver 'Noël en famille'" }
+        ];
+
+        function runTests(tests, containerId, title) {
+            const container = document.getElementById(containerId);
+            let html = `<table border="1"><tr><th>Requête</th><th>Résultats</th><th>Attendu</th><th>Status</th><th>Description</th></tr>`;
+            
+            tests.forEach(test => {
+                const results = searchInContent(testContent, test.query);
+                const success = results.length === test.expectedCount;
+                const statusClass = success ? 'success' : 'error';
+                
+                html += `<tr class="${statusClass}">
+                    <td><strong>${test.query}</strong></td>
+                    <td>${results.length}</td>
+                    <td>${test.expectedCount}</td>
+                    <td>${success ? '✓ Succès' : '✗ Échec'}</td>
+                    <td>${test.description}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        // Fonction de recherche interactive
+        function setupInteractiveSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                
+                if (query.length === 0) {
+                    searchResults.innerHTML = '<p>Tapez quelque chose pour commencer la recherche...</p>';
+                    return;
+                }
+                
+                const results = searchInContent(testContent, query);
+                
+                if (results.length === 0) {
+                    searchResults.innerHTML = `<p style="color: red;">Aucun résultat trouvé pour "<strong>${query}</strong>"</p>`;
+                } else {
+                    let html = `<h4>${results.length} résultat(s) trouvé(s) pour "<strong>${query}</strong>":</h4><ul>`;
+                    results.forEach(result => {
+                        html += `<li><strong>${result.title}</strong> (${result.gallery}) - Trouvé par: ${result.matchType}</li>`;
+                    });
+                    html += '</ul>';
+                    searchResults.innerHTML = html;
+                }
+            });
+        }
+
+        // Exécuter les tests
+        document.addEventListener('DOMContentLoaded', () => {
+            runTests(accentTests, 'accentTests', 'Tests avec accents');
+            runTests(numberTests, 'numberTests', 'Tests avec nombres');
+            runTests(multipleTests, 'multipleTests', 'Tests avec recherche multiple');
+            setupInteractiveSearch();
+            
+            // Afficher un résumé
+            console.log('Tests de recherche terminés. Vérifiez les tableaux ci-dessus.');
+        });
+    </script>
+</body>
+</html>

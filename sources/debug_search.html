@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test de la recherche de fichiers numériques</title>
+</head>
+<body>
+    <h1>Test de la recherche "1.mp4" et autres fichiers numériques</h1>
+    
+    <div>
+        <h3>Test de la fonction normalizeString corrigée :</h3>
+        <div id="normalizeTest"></div>
+    </div>
+    
+    <div>
+        <h3>Test de la fonction searchNumericInTitle :</h3>
+        <div id="numericSearchTest"></div>
+    </div>
+    
+    <div>
+        <h3>Test de recherche complète :</h3>
+        <input type="text" id="testInput" placeholder="Testez votre recherche..." style="padding: 10px; width: 300px;">
+        <div id="testResults" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        // Fonction corrigée
+        function normalizeString(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .replace(/[^\w\s\d.-]/gi, ' ')  // CORRECTION : garde les points et tirets
+                      .replace(/\s+/g, ' ')
+                      .trim();
+        }
+
+        // Vérifier si une chaîne est numérique
+        function isNumeric(str) {
+            return /^\d+$/.test(str);
+        }
+
+        // Recherche spécialisée pour les nombres dans les noms de fichiers
+        function searchNumericInTitle(title, numericTerm) {
+            if (!title || !numericTerm) return false;
+            
+            const lowerTitle = title.toLowerCase();
+            
+            // Recherche exacte
+            if (lowerTitle.includes(numericTerm)) return true;
+            
+            // Recherche avec des séparateurs communs
+            const patterns = [
+                numericTerm + '.',  // 1.mp4
+                numericTerm + '-',  // video1-hd
+                numericTerm + '_',  // file1_final
+                '.' + numericTerm,  // v.1
+                '-' + numericTerm,  // video-1
+                '_' + numericTerm   // file_1
+            ];
+            
+            return patterns.some(pattern => lowerTitle.includes(pattern));
+        }
+
+        // Tests de normalisation
+        function testNormalize() {
+            const tests = [
+                { input: "1.mp4", expected: "1.mp4" },
+                { input: "Video-123.avi", expected: "video-123.avi" },
+                { input: "Mon_Film_2024.mkv", expected: "mon_film_2024.mkv" },
+                { input: "Été_à_la_plage.mp4", expected: "ete_a_la_plage.mp4" },
+            ];
+
+            let html = '<table border="1"><tr><th>Input</th><th>Résultat</th><th>Attendu</th><th>OK?</th></tr>';
+            
+            tests.forEach(test => {
+                const result = normalizeString(test.input);
+                const isOk = result === test.expected;
+                const color = isOk ? 'green' : 'red';
+                
+                html += `<tr style="color: ${color}">
+                    <td>${test.input}</td>
+                    <td>"${result}"</td>
+                    <td>"${test.expected}"</td>
+                    <td>${isOk ? '✓' : '✗'}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            document.getElementById('normalizeTest').innerHTML = html;
+        }
+
+        // Tests de recherche numérique
+        function testNumericSearch() {
+            const tests = [
+                { title: "1.mp4", search: "1", shouldMatch: true },
+                { title: "video-123.avi", search: "123", shouldMatch: true },
+                { title: "film_01.mkv", search: "01", shouldMatch: true },
+                { title: "test.2.final.mp4", search: "2", shouldMatch: true },
+                { title: "video-abc.mp4", search: "123", shouldMatch: false },
+            ];
+
+            let html = '<table border="1"><tr><th>Titre</th><th>Recherche</th><th>Résultat</th><th>Attendu</th><th>OK?</th></tr>';
+            
+            tests.forEach(test => {
+                const result = searchNumericInTitle(test.title, test.search);
+                const isOk = result === test.shouldMatch;
+                const color = isOk ? 'green' : 'red';
+                
+                html += `<tr style="color: ${color}">
+                    <td>${test.title}</td>
+                    <td>${test.search}</td>
+                    <td>${result ? 'Trouvé' : 'Non trouvé'}</td>
+                    <td>${test.shouldMatch ? 'Trouvé' : 'Non trouvé'}</td>
+                    <td>${isOk ? '✓' : '✗'}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            document.getElementById('numericSearchTest').innerHTML = html;
+        }
+
+        // Test interactif
+        function setupInteractiveTest() {
+            const testVideos = [
+                { caption: "1.mp4", gallery: "Tests" },
+                { caption: "video-123.avi", gallery: "Anciens" },
+                { caption: "Mon film d'été.mp4", gallery: "Vacances 2024" },
+                { caption: "test_01_final.mkv", gallery: "Production" },
+                { caption: "2024-vacation.mp4", gallery: "Souvenirs" },
+                { caption: "Café du matin.mov", gallery: "Quotidien" },
+            ];
+
+            const input = document.getElementById('testInput');
+            const results = document.getElementById('testResults');
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                
+                if (!query) {
+                    results.innerHTML = '<p>Tapez quelque chose pour tester...</p>';
+                    return;
+                }
+
+                const searchTerms = normalizeString(query).split(' ').filter(term => term.length > 0);
+                const matches = [];
+
+                testVideos.forEach(video => {
+                    let isMatch = false;
+                    let matchType = '';
+                    
+                    const videoTitle = normalizeString(video.caption);
+                    const galleryName = normalizeString(video.gallery);
+                    
+                    for (const term of searchTerms) {
+                        if (videoTitle.includes(term)) {
+                            isMatch = true;
+                            matchType = 'titre normalisé';
+                            break;
+                        } else if (galleryName.includes(term)) {
+                            isMatch = true;
+                            matchType = 'galerie';
+                            break;
+                        } else if (isNumeric(term) && searchNumericInTitle(video.caption, term)) {
+                            isMatch = true;
+                            matchType = 'recherche numérique';
+                            break;
+                        }
+                    }
+                    
+                    if (isMatch) {
+                        matches.push({ ...video, matchType });
+                    }
+                });
+
+                if (matches.length === 0) {
+                    results.innerHTML = `<p style="color: red;">Aucun résultat pour "<strong>${query}</strong>"</p>`;
+                } else {
+                    let html = `<h4>${matches.length} résultat(s) trouvé(s) :</h4><ul>`;
+                    matches.forEach(match => {
+                        html += `<li><strong>${match.caption}</strong> (${match.gallery}) - Trouvé par: ${match.matchType}</li>`;
+                    });
+                    html += '</ul>';
+                    results.innerHTML = html;
+                }
+            });
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            testNormalize();
+            testNumericSearch();
+            setupInteractiveTest();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+// Colors
+
+$red: rgb(191, 70, 70);
+$light-red: rgb(255, 222, 222);
+$green: rgb(92, 198, 92);
+$light-green: rgb(214, 255, 214);
+$orange: #ff9161;
+$light-orange: #ffb899;
+$black: black;
+$white: white;
+
+$colors: (
+	"grey": #959a9e,
+	"light-grey": #f2f2f2,
+
+	"text": #3f3f46,
+	"text-fade": #959a9e,
+	"background": #ffffff,
+
+	"primary": $orange,
+	"primary-hover": $light-orange,
+
+	"success-text": $green,
+	"success-background": $light-green,
+	"danger-text": $red,
+	"danger-background": $light-red
+);
+
+// Breakpoints
+$breakpoints: (
+	"sm": 576px,
+	"md": 768px,
+	"lg": 992px,
+	"xl": 1200px,
+	"xxl": 1400px
+);

@@ -1,0 +1,47 @@
+@use "../partials/functions" as f;
+@use "../partials/mixins" as m;
+
+@layer components {
+    .button {
+        @include m.resetA;
+        @include m.resetButton;
+        @include m.flexbox($align: center, $justify: center, $gap: f.rem(10));
+        padding: f.rem(15) f.rem(25);
+        background-color: var(--primary-color);
+        border-radius: f.rem(27);
+        font-weight: 500;
+        color: var(--black-color);
+        height: f.rem(54);
+        transition: background-color 0.3s;
+
+        &:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        // Element
+        img {
+            width: f.rem(24);
+            height: f.rem(24);
+        }
+
+        // Modifiers
+        &--cta {
+            background-color: var(--primary-color);
+        }
+        &--secondary {
+            background-color: var(--light-grey-color);
+        }
+        &--icon {
+            padding: f.rem(15) f.rem(15);
+        }
+        &--square {
+            border-radius: f.rem(3);
+        }
+        &--no-background {
+            background-color: transparent;
+            &:hover {
+                background-color: var(--light-grey-color);
+            }
+        }
+    }
+}

@@ -1,0 +1,57 @@
+# Fichiers de configuration sensibles
+sources/config/database.php
+sources/config/config.php
+*.env
+
+# Dossiers de médias uploadés (TOUS LES FORMATS VIDÉO)
+sources/uploads/
+uploads/
+sources/storage/videos/
+sources/storage/thumbnails/
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Fichiers de base de données MySQL/MariaDB
+database/
+*.frm
+*.ibd
+*.MYD
+*.MYI
+ib_logfile*
+ib_data*
+*.sql.backup
+
+# Logs
+sources/logs/
+*.log
+
+# Cache et sessions
+sources/storage/cache/
+sources/storage/sessions/
+sources/tmp/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Dépendances
+vendor/
+composer.lock
+node_modules/
+package-lock.json
+
+# Fichiers IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Autres fichiers de base de données
+*.db
+*.sqlite

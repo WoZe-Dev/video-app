@@ -1,0 +1,31 @@
+@use "variables" as v;
+@use "functions" as f;
+
+@layer utilities {
+    $increment: f.rem(10); // increment de 10 px
+    $directions: (
+        t: top,
+        b: bottom,
+        l: left,
+        r: right
+    );
+    @for $i from 0 through 8 {
+        .m-#{$i} {
+            margin: $i * $increment;
+        }
+        .m-auto {
+            margin: auto;
+        }
+        @each $name, $value in $directions {
+            .m#{$name}-#{$i} {
+                margin-#{$value}: $i * $increment;
+            }
+        }
+    }
+    .text-center {
+        text-align: center;
+    }
+    .w-100 {
+        width: 100%;
+    }
+}

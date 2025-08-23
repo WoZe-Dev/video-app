@@ -1,0 +1,58 @@
+@use "variables" as v;
+@use "functions" as f;
+@use "mixins" as m;
+
+// Only font
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap");
+$main-font: "Urbanist", serif;
+
+@layer base {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    :root {
+        @each $name, $color in v.$colors {
+            --#{$name}-color: #{$color};
+        }
+    }
+
+    body {
+        font-family: $main-font;
+        font-weight: 400;
+        color: var(--text-color);
+        background-color: var(--background-color);
+    }
+    h1,
+    h2 {
+        font-weight: 400;
+    }
+    h1 {
+        font-size: f.rem(39);
+    }
+    h2 {
+        font-size: f.rem(25);
+    }
+    a {
+        color: var(--primary-color);
+    }
+    .container {
+        margin: auto;
+        max-width: f.rem(1300);
+        padding: 0 f.rem(16);
+    }
+
+    section {
+        margin-bottom: f.rem(200);
+    }
+
+    .hero-section {
+        @include m.flexbox($align: center, $direction: column, $gap: f.rem(24));
+        h1 {
+            margin: 0;
+            text-align: center;
+            font-size: f.rem(76);
+        }
+    }
+}

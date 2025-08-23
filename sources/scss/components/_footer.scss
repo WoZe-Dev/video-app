@@ -1,0 +1,69 @@
+@use "../partials/functions" as f;
+
+// Style principal du footer
+.footer {
+  padding: f.rem(32) 0;
+  margin-top: f.rem(300);
+}
+
+// Conteneur interne du footer
+.footer .container {
+  max-width: f.rem(1200);
+  margin: 0 auto;
+  padding: 0 f.rem(32);
+}
+
+// Zone de contenu principale du footer
+.footer .footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: f.rem(1);
+}
+
+// Logo présent dans le footer
+.footer .footer-content .footer-logo img {
+  width: f.rem(65);
+  height: f.rem(65);
+}
+
+// Navigation du footer
+.footer .footer-content .footer-nav {
+  display: flex;
+  gap: f.rem(32);
+}
+
+.footer .footer-content .footer-nav a {
+  color: #666;
+  text-decoration: none;
+  font-size: f.rem(14.4);
+  transition: color 0.3s ease;
+}
+
+.footer .footer-content .footer-nav a:hover {
+  color: #333;
+}
+
+// Zone de bas de page
+.footer .footer-bottom {
+  text-align: center;
+  color: #666;
+  font-size: f.rem(13.6);
+  border-top: f.rem(1) solid #ff91614a;
+  padding:  f.rem(24);
+  
+}
+
+// Adaptation pour les écrans plus petits
+@media (max-width: f.rem(768)) {
+  .footer .footer-content {
+    flex-direction: column;
+    gap: f.rem(24);
+    text-align: center;
+  }
+  
+  .footer .footer-content .footer-nav {
+    flex-direction: column;
+    gap: f.rem(16);
+  }
+}
