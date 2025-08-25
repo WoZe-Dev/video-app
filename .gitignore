@@ -55,3 +55,6 @@ package-lock.json
 # Autres fichiers de base de données
 *.db
 *.sqlite
+.env
+.env
+.env.backup.*
