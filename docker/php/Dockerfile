@@ -14,6 +14,9 @@ RUN docker-php-ext-install pdo_mysql
 # Copier la configuration PHP pour les uploads
 COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
+# Copier la configuration PHP pour les sessions
+COPY sessions.ini /usr/local/etc/php/conf.d/sessions.ini
+
 ## Copy the startup script into the container
 #COPY startup.sh /usr/local/bin/startup.sh
 #RUN chmod +x /usr/local/bin/startup.sh

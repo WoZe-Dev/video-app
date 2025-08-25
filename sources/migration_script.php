@@ -3,8 +3,8 @@
 use App\Core\Model;
 use App\Core\Migration;
 
-require __DIR__ . '/app/core/Model.php';
-require __DIR__ . '/app/core/Migration.php';
+require __DIR__ . '/app/Core/Model.php';
+require __DIR__ . '/app/Core/Migration.php';
 
 
 class MigrationManager extends Model

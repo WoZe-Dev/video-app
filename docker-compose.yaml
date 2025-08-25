@@ -14,9 +14,11 @@ services:
     volumes:
       - ./docker/nginx/templates:/etc/nginx/templates
       - ./sources:$PHP_USER_HOME_DIRECTORY
-      - ./uploads:$PHP_USER_HOME_DIRECTORY/uploads
+      - ${EXTERNAL_STORAGE_PATH:-/mnt/betweenus-storage}/uploads:$PHP_USER_HOME_DIRECTORY/uploads
+      - ${EXTERNAL_STORAGE_PATH:-/mnt/betweenus-storage}/videos:$PHP_USER_HOME_DIRECTORY/videos
     ports:
       - $SERVER_PORT:80
+    restart: unless-stopped
 
   php:
     depends_on:
@@ -37,7 +39,9 @@ services:
     volumes:
       - ./sources:$PHP_USER_HOME_DIRECTORY
       - ./migrations:$PHP_USER_HOME_DIRECTORY/migrations
-      - ./uploads:$PHP_USER_HOME_DIRECTORY/uploads
+      - ${EXTERNAL_STORAGE_PATH:-/mnt/betweenus-storage}/uploads:$PHP_USER_HOME_DIRECTORY/uploads
+      - ${EXTERNAL_STORAGE_PATH:-/mnt/betweenus-storage}/videos:$PHP_USER_HOME_DIRECTORY/videos
+    restart: unless-stopped
 #    command: ["/usr/local/bin/startup.sh"]
 
   mariadb:
@@ -56,15 +60,19 @@ services:
       MARIADB_DATABASE: $DATABASE_NAME
     volumes:
       - ./database:/var/lib/mysql
+    restart: unless-stopped
 
   phpmyadmin:
     depends_on:
       - mariadb
-    image: phpmyadmin/phpmyadmin
+    image: arm64v8/phpmyadmin:latest
     ports:
       - $PHPMYADMIN_PORT:80
+    volumes:
+      - ./docker/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
     environment:
       PMA_HOST: mariadb
       PMA_PORT: 3306
-      PMA_USER: $DATABASE_USER
-      PMA_PASSWORD: $DATABASE_PASSWORD
+      PMA_ABSOLUTE_URI: http://192.168.1.68:8080/
+      MYSQL_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
+    restart: unless-stopped

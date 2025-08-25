@@ -73,8 +73,7 @@ class AuthController extends Controller
     {
         $isSubmitted = isset($_POST['submit']) || Form::isSubmitted();
         if (!$isSubmitted) {
-            header('Location: /login');
-            exit;
+            $this->redirect('/login');
         }
 
         $login = trim($_POST['login'] ?? '');
@@ -94,8 +93,7 @@ class AuthController extends Controller
                 'last_name' => 'User',
                 'role' => 'admin'
             ]);
-            header('Location: /gallery');
-            exit;
+            $this->redirect('/gallery');
         }
 
         // Sinon essayer la base de données
@@ -121,11 +119,10 @@ class AuthController extends Controller
                     
                     // Redirection selon le rôle
                     if ($user->role === 'admin') {
-                        header('Location: /gallery');
+                        $this->redirect('/gallery');
                     } else {
-                        header('Location: /tv-mode');
+                        $this->redirect('/tv-mode');
                     }
-                    exit;
                 } else {
                     error_log("Échec de la vérification du mot de passe");
                 }
@@ -138,8 +135,7 @@ class AuthController extends Controller
 
         // Échec de connexion
         $_SESSION['login_error'] = "Identifiants incorrects";
-        header('Location: /login');
-        exit;
+        $this->redirect('/login');
     }
 
     private function loginUser($userData): void
