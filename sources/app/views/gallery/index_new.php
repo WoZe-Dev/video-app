@@ -119,7 +119,7 @@ ob_start();
     justify-content: center;
     height: 240px;
     background: #f5f5f5;
-
+   
 }
 
 .no-galleries {

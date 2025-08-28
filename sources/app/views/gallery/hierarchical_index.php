@@ -117,9 +117,9 @@ ob_start();
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 240px;
+    height: 200px;
     background: #f5f5f5;
-
+   
 }
 
 .no-galleries {

@@ -4,8 +4,8 @@
 # Ce script détecte automatiquement les disques externes et configure le stockage
 
 LOG_FILE="/var/log/storage-manager.log"
-ENV_FILE="/home/betweenus/.env"
-COMPOSE_FILE="/home/betweenus/docker-compose.yaml"
+ENV_FILE="/home/video-app/.env"
+COMPOSE_FILE="/home/video-app/docker-compose.yaml"
 
 # Fonction de logging
 log() {
@@ -85,7 +85,7 @@ update_env_file() {
 restart_docker_services() {
     log "Redémarrage des services Docker..."
     
-    cd /home/betweenus
+    cd /home/video-app
     
     # Arrêter les services
     docker compose down

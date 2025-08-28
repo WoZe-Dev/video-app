@@ -26,9 +26,9 @@ $title = $title ?? 'Default Title';
     <?= $content; ?>
   </main>
 </body>
+<!-- Scripts spécifiques pour la galerie simple -->
 <script src="/assets/js/upload.js"></script>
-<script src="/assets/js/streaming.js"></script>
-<script src="/assets/js/screencast-player.js"></script>
+<!-- On ne charge pas streaming.js pour éviter les conflits -->
 <script src="/assets/js/tv-interface.js"></script>
 
 </html>

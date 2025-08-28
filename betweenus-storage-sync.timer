@@ -1,0 +1,11 @@
+[Unit]
+Description=BetweenUs Storage Sync Timer
+Requires=betweenus-storage-sync.service
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

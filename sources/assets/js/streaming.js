@@ -278,33 +278,92 @@ function showUploadError(message) {
 
 // Gestion du modal vidéo avec lecteur screencast
 function openVideoModal(videoPath, title) {
-    const modal = document.getElementById('videoModal');
-    const video = document.getElementById('modalVideo');
-    const source = document.getElementById('modalVideoSource');
-    const titleElement = document.getElementById('modalVideoTitle');
-    const player = document.getElementById('modalPlayer');
+    console.log('openVideoModal (legacy) appelée, redirection vers openSimpleVideoModal');
     
-    if (modal && video && source && titleElement && player) {
-        source.src = videoPath;
-        titleElement.textContent = title || 'Vidéo sans titre';
-        video.load();
-        modal.style.display = 'flex';
-        
-        // Initialiser le lecteur screencast si pas déjà fait
-        if (!player.screencastPlayer) {
-            player.screencastPlayer = new ScreencastPlayer(player);
-        }
-        
-        // Pause toutes les autres vidéos
-        document.querySelectorAll('video').forEach(v => {
-            if (v !== video) v.pause();
-        });
-        
-        // Focus sur le player pour les contrôles clavier
-        setTimeout(() => {
-            player.focus();
-        }, 100);
+    // Essayer d'abord de rediriger vers la nouvelle fonction
+    if (typeof window.openSimpleVideoModal === 'function') {
+        console.log('Redirection réussie vers openSimpleVideoModal');
+        window.openSimpleVideoModal(videoPath, title);
+        return;
     }
+    
+    // Si openSimpleVideoModal n'existe pas, essayer de créer un modal simple
+    console.log('openSimpleVideoModal non disponible, création d\'un modal simple');
+    
+    // Chercher d'abord le modal simple
+    let modal = document.getElementById('simpleVideoModal');
+    if (modal) {
+        const video = document.getElementById('simpleModalVideo');
+        const source = document.getElementById('simpleModalVideoSource');
+        const titleElement = document.getElementById('simpleModalVideoTitle');
+        
+        if (video && source && titleElement) {
+            source.src = videoPath;
+            titleElement.textContent = title || 'Vidéo sans titre';
+            video.load();
+            modal.style.display = 'flex';
+            console.log('Modal simple ouvert avec succès');
+            return;
+        }
+    }
+    
+    // En dernier recours, créer un modal basique
+    console.log('Création d\'un modal de base');
+    modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    `;
+    
+    const content = document.createElement('div');
+    content.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 90%;
+        max-height: 90%;
+    `;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.style.cssText = `
+        float: right;
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    `;
+    closeBtn.onclick = () => document.body.removeChild(modal);
+    
+    const video = document.createElement('video');
+    video.controls = true;
+    video.style.cssText = 'width: 100%; max-width: 800px; height: auto;';
+    video.src = videoPath;
+    
+    const titleDiv = document.createElement('h3');
+    titleDiv.textContent = title || 'Vidéo';
+    titleDiv.style.marginBottom = '10px';
+    
+    content.appendChild(closeBtn);
+    content.appendChild(titleDiv);
+    content.appendChild(video);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    // Fermer en cliquant en dehors
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            document.body.removeChild(modal);
+        }
+    });
 }
 
 function closeVideoModal() {

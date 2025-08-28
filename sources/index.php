@@ -52,11 +52,13 @@ $router->get('/gallery/upload/{id}', ['GalleryController', 'uploadVideoForm']);
 $router->post('/gallery/upload/{id}', ['GalleryController', 'storeVideo']);
 
 // Delete video
-$router->get('/gallery/delete/{id}', ['GalleryController', 'deleteVideo']);
+$router->get('/gallery/delete-video/{id}', ['GalleryController', 'deleteVideo']);
+
+// Delete gallery
+$router->get('/gallery/delete/{galleryId}', ['GalleryController', 'deleteGallery']);
 
 // Empty gallery 
 $router->get('/gallery/empty/{galleryId}', ['GalleryController', 'emptyGallery']);
-$router->get('/gallery/deletegallery/{galleryId}', ['GalleryController', 'deleteGallery']);
 
 
 

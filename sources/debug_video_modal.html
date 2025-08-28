@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Video Modal Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .video-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            position: relative;
+            width: 300px;
+        }
+
+        .video-thumbnail {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            background: #333;
+        }
+
+        .video-thumbnail video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .play-button {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .play-button:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            background: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        .modal-video {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-container">
+    <h1>Test de Debug - Modal Vidéo</h1>
+    
+    <div class="debug-info">
+        <strong>Tests de diagnostic:</strong><br>
+        <button class="test-button" onclick="testBasicAlert()">Test Alert Basic</button>
+        <button class="test-button" onclick="testOpenModal()">Test Modal Direct</button>
+        <button class="test-button" onclick="checkElements()">Check Éléments</button>
+        <button class="test-button" onclick="testVideoPath()">Test Chemin Vidéo</button>
+    </div>
+
+    <div class="debug-info" id="debugOutput">
+        <strong>Sortie de debug:</strong><br>
+        En attente...
+    </div>
+
+    <!-- Test Card -->
+    <div class="video-card">
+        <div class="video-thumbnail">
+            <video preload="metadata" muted>
+                <source src="/uploads/gallery_videos/1/gallery_13/20250826212244_bdf67015f4c0c967.mp4" type="video/mp4">
+                Votre navigateur ne supporte pas la lecture de cette vidéo.
+            </video>
+            <div class="video-overlay">
+                <button class="play-button" onclick="testOpenVideoModal('/uploads/gallery_videos/1/gallery_13/20250826212244_bdf67015f4c0c967.mp4', 'Test Video')">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Simple -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeTestModal()">&times;</button>
+            <video id="testVideo" class="modal-video" controls>
+                <source id="testVideoSource" src="" type="video/mp4">
+            </video>
+            <p id="testVideoTitle">Titre de la vidéo</p>
+        </div>
+    </div>
+</div>
+
+<script>
+let debugOutput = document.getElementById('debugOutput');
+
+function log(message) {
+    console.log(message);
+    debugOutput.innerHTML += '<br>' + message;
+}
+
+function testBasicAlert() {
+    alert('Test basic fonctionne!');
+    log('✓ Test alert réussi');
+}
+
+function testOpenModal() {
+    document.getElementById('testModal').style.display = 'flex';
+    log('✓ Modal ouverte directement');
+}
+
+function closeTestModal() {
+    document.getElementById('testModal').style.display = 'none';
+    log('✓ Modal fermée');
+}
+
+function checkElements() {
+    const modal = document.getElementById('testModal');
+    const video = document.getElementById('testVideo');
+    const source = document.getElementById('testVideoSource');
+    
+    log('Vérification des éléments:');
+    log('- Modal: ' + (modal ? '✓ Trouvé' : '✗ Manquant'));
+    log('- Video: ' + (video ? '✓ Trouvé' : '✗ Manquant'));
+    log('- Source: ' + (source ? '✓ Trouvé' : '✗ Manquant'));
+}
+
+function testVideoPath() {
+    const videoPath = '/uploads/gallery_videos/1/gallery_13/20250826212244_bdf67015f4c0c967.mp4';
+    log('Test du chemin vidéo: ' + videoPath);
+    
+    fetch(videoPath, {method: 'HEAD'})
+        .then(response => {
+            if (response.ok) {
+                log('✓ Vidéo accessible (Status: ' + response.status + ')');
+            } else {
+                log('✗ Vidéo inaccessible (Status: ' + response.status + ')');
+            }
+        })
+        .catch(error => {
+            log('✗ Erreur réseau: ' + error.message);
+        });
+}
+
+function testOpenVideoModal(videoPath, title) {
+    log('testOpenVideoModal appelée avec: ' + videoPath + ', ' + title);
+    
+    const modal = document.getElementById('testModal');
+    const video = document.getElementById('testVideo');
+    const source = document.getElementById('testVideoSource');
+    const titleElement = document.getElementById('testVideoTitle');
+    
+    if (modal && video && source && titleElement) {
+        source.src = videoPath;
+        titleElement.textContent = title;
+        video.load();
+        modal.style.display = 'flex';
+        log('✓ Modal ouverte avec succès');
+    } else {
+        log('✗ Éléments manquants pour la modal');
+    }
+}
+
+// Test au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    log('DOM chargé');
+    checkElements();
+});
+
+// Capturer les erreurs JavaScript
+window.addEventListener('error', function(e) {
+    log('✗ Erreur JS: ' + e.message + ' (ligne ' + e.lineno + ')');
+});
+</script>
+
+</body>
+</html>

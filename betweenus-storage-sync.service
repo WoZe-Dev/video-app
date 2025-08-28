@@ -1,0 +1,11 @@
+[Unit]
+Description=BetweenUs Storage Sync Service
+After=betweenus.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/video-app/scripts/storage-sync.sh
+User=toto
+Group=docker
+StandardOutput=journal
+StandardError=journal

@@ -90,7 +90,10 @@ class AuthMiddleware
      */
     public static function verifyCsrfToken($token): bool
     {
-        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+        return isset($_SESSION['csrf_token']) && 
+               $token !== null && 
+               is_string($token) && 
+               hash_equals($_SESSION['csrf_token'], $token);
     }
 
 }

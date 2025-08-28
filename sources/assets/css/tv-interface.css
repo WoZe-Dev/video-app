@@ -184,8 +184,8 @@
 }
 
 .tv-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    display: flex;
+    
     gap: 30px;
     padding-bottom: 40px;
 }
@@ -589,7 +589,7 @@
 /* Responsive pour différentes tailles de TV */
 @media (max-width: 1920px) {
     .tv-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        
         gap: 25px;
     }
     

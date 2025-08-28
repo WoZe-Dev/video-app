@@ -94,41 +94,86 @@ try {
         ]);
         
     } else {
-        // Endpoint pour les galeries (par défaut)
-        $galleries = $galleryModel->getUserGalleriesAndContent($userId);
+        // Endpoint pour les galeries (par défaut) - Nouvelle logique hiérarchique
+        $galleries = $galleryModel->getMainGalleries();
         
-        // Transformer les données comme dans ApiController
+        // Transformer les données pour l'API TV - structure hiérarchique
         $tvData = [];
         foreach ($galleries as $gallery) {
-            $galleryVideos = json_decode($gallery->galleryVideos ?? '[]');
-            $videos = [];
+            // Récupérer le contenu de cette galerie
+            $content = $galleryModel->getGalleryContent($gallery->gallery_id);
             
-            if (!empty($galleryVideos)) {
-                foreach ($galleryVideos as $video) {
-                    if (!empty($video->id)) {
-                        $videos[] = [
-                            'id' => $video->id,
-                            'caption' => $video->caption ?? 'Vidéo sans titre',
-                            'video_path' => $video->video_path,
-                            'mime_type' => $video->mime_type ?? 'video/mp4',
-                            'duration' => $video->duration ?? 0,
-                            'file_size' => $video->file_size ?? 0,
-                            'created_at' => $video->created_at ?? date('Y-m-d H:i:s')
-                        ];
-                    }
+            // Séparer les vidéos directes des vidéos des sous-galeries
+            $directVideos = [];
+            $allVideos = [];
+            
+            // Ajouter les vidéos directes de cette galerie
+            foreach ($content['videos'] as $video) {
+                $videoData = [
+                    'id' => $video->id,
+                    'video_title' => $video->caption ?? 'Vidéo sans titre',
+                    'video_path' => $video->video_path,
+                    'full_path' => $video->full_path ?? '/' . $gallery->gallery_name . '/' . ($video->original_filename ?? $video->caption),
+                    'mime_type' => $video->mime_type ?? 'video/mp4',
+                    'duration' => $video->duration ?? '00:00:00',
+                    'file_size' => $video->file_size ?? 0,
+                    'created_at' => $video->created_at ?? date('Y-m-d H:i:s'),
+                    'gallery_path' => $gallery->gallery_name,
+                    'is_direct' => true
+                ];
+                $directVideos[] = $videoData;
+                $allVideos[] = $videoData;
+            }
+            
+            // Ajouter les vidéos des sous-galeries
+            foreach ($content['subgalleries'] as $subgallery) {
+                $subContent = $galleryModel->getGalleryContent($subgallery->gallery_id);
+                foreach ($subContent['videos'] as $video) {
+                    $videoData = [
+                        'id' => $video->id,
+                        'video_title' => $video->caption ?? 'Vidéo sans titre',
+                        'video_path' => $video->video_path,
+                        'full_path' => $video->full_path ?? '/' . $gallery->gallery_name . '/' . $subgallery->gallery_name . '/' . ($video->original_filename ?? $video->caption),
+                        'mime_type' => $video->mime_type ?? 'video/mp4',
+                        'duration' => $video->duration ?? '00:00:00',
+                        'file_size' => $video->file_size ?? 0,
+                        'created_at' => $video->created_at ?? date('Y-m-d H:i:s'),
+                        'gallery_path' => $gallery->gallery_name . '/' . $subgallery->gallery_name,
+                        'is_direct' => false,
+                        'subgallery_name' => $subgallery->gallery_name
+                    ];
+                    $allVideos[] = $videoData;
                 }
             }
             
-            // Thumbnail - première vidéo
-            $thumbnailPath = !empty($videos) ? $videos[0]['video_path'] : null;
+            // Thumbnail - première vidéo trouvée
+            $thumbnailPath = !empty($allVideos) ? $allVideos[0]['video_path'] : null;
             
             $tvData[] = [
                 'gallery_id' => $gallery->gallery_id,
                 'gallery_name' => $gallery->gallery_name,
                 'gallery_description' => $gallery->description ?? '',
-                'video_count' => count($videos),
+                'video_count' => count($allVideos),
+                'direct_video_count' => count($directVideos),
+                'subgallery_count' => count($content['subgalleries']),
+                'total_videos' => count($allVideos),
                 'thumbnail_path' => $thumbnailPath,
-                'videos' => $videos
+                'videos' => $allVideos,
+                'direct_videos' => $directVideos,
+                'subgalleries' => array_map(function($sub) use ($allVideos) {
+                    // Compter les vidéos de cette sous-galerie spécifique
+                    $subVideos = array_filter($allVideos, function($video) use ($sub) {
+                        return isset($video['subgallery_name']) && $video['subgallery_name'] === $sub->gallery_name;
+                    });
+                    
+                    return [
+                        'id' => $sub->gallery_id,
+                        'name' => $sub->gallery_name,
+                        'description' => $sub->description ?? '',
+                        'video_count' => count($subVideos),
+                        'videos' => array_values($subVideos)
+                    ];
+                }, $content['subgalleries'])
             ];
         }
         

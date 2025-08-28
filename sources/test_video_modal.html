@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Vidéo</title>
+    <link rel="stylesheet" href="/assets/css/modern-streaming.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🔧 Test d'Accès aux Vidéos - Galerie 13</h1>
+
+<div class="test-section">
+    <h2>1. Test d'accès direct aux fichiers</h2>
+    <p>Testez l'accès direct aux vidéos :</p>
+    <button class="test-button" onclick="window.open('/uploads/gallery_videos/1/gallery_13/20250826212253_88bdbe9b8f38353d.mp4', '_blank')">
+        📹 Ouvrir Vidéo 1 dans un nouvel onglet
+    </button>
+    <button class="test-button" onclick="window.open('/uploads/gallery_videos/1/gallery_13/20250826211019_c7bd86c7b05147a9.mp4', '_blank')">
+        📹 Ouvrir Vidéo 2 dans un nouvel onglet
+    </button>
+</div>
+
+<div class="test-section">
+    <h2>2. Test de la modal</h2>
+    <p>Testez l'ouverture de la modal vidéo :</p>
+    <button class="test-button" onclick="openVideoModal('/uploads/gallery_videos/1/gallery_13/20250826212253_88bdbe9b8f38353d.mp4', 'Video Test 1')">
+        🎬 Ouvrir dans Modal - Vidéo 1
+    </button>
+    <button class="test-button" onclick="openVideoModal('/uploads/gallery_videos/1/gallery_13/20250826211019_c7bd86c7b05147a9.mp4', 'Video Test 2')">
+        🎬 Ouvrir dans Modal - Vidéo 2
+    </button>
+</div>
+
+<div class="test-section">
+    <h2>3. Test de lecture directe</h2>
+    <p>Lecteur vidéo HTML5 intégré :</p>
+    <video controls width="400" style="border: 2px solid #007bff; border-radius: 10px;">
+        <source src="/uploads/gallery_videos/1/gallery_13/20250826212253_88bdbe9b8f38353d.mp4" type="video/mp4">
+        Votre navigateur ne supporte pas la lecture de cette vidéo.
+    </video>
+</div>
+
+<div class="test-section">
+    <h2>4. Informations de debug</h2>
+    <div id="debugInfo" style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace;"></div>
+    <button class="test-button" onclick="runDebugTests()">🔍 Exécuter Tests Debug</button>
+</div>
+
+<!-- Modal Vidéo -->
+<div id="videoModal" class="video-modal" style="display: none;">
+    <div class="video-modal-content">
+        <span class="video-modal-close">&times;</span>
+        <h3 id="videoModalTitle"></h3>
+        <video id="videoModalPlayer" controls style="width: 100%; max-width: 800px;">
+            <source id="videoModalSource" src="" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture de cette vidéo.
+        </video>
+    </div>
+</div>
+
+<script>
+// Fonction pour ouvrir la modal vidéo
+function openVideoModal(videoPath, title) {
+    console.log('openVideoModal appelée avec:', videoPath, title);
+    
+    const modal = document.getElementById('videoModal');
+    const modalTitle = document.getElementById('videoModalTitle');
+    const modalSource = document.getElementById('videoModalSource');
+    const modalPlayer = document.getElementById('videoModalPlayer');
+    
+    console.log('Éléments trouvés:', {
+        modal: !!modal,
+        modalTitle: !!modalTitle,
+        modalSource: !!modalSource,
+        modalPlayer: !!modalPlayer
+    });
+    
+    if (!modal) {
+        console.error('Modal videoModal non trouvée!');
+        alert('Erreur: Modal non trouvée');
+        return;
+    }
+    
+    modalTitle.textContent = title;
+    modalSource.src = videoPath;
+    modalPlayer.load();
+    modal.style.display = 'block';
+    
+    console.log('Modal ouverte avec succès');
+}
+
+// Gestion des événements
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('videoModal');
+    const closeBtn = document.querySelector('.video-modal-close');
+    const modalPlayer = document.getElementById('videoModalPlayer');
+    
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            modalPlayer.pause();
+        }
+    }
+    
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+            modalPlayer.pause();
+        }
+    }
+});
+
+// Tests de debug
+function runDebugTests() {
+    const debugInfo = document.getElementById('debugInfo');
+    let info = '';
+    
+    // Test 1: Vérifier les éléments DOM
+    info += '=== VÉRIFICATION DES ÉLÉMENTS DOM ===\n';
+    info += `Modal: ${!!document.getElementById('videoModal')}\n`;
+    info += `Modal Title: ${!!document.getElementById('videoModalTitle')}\n`;
+    info += `Modal Source: ${!!document.getElementById('videoModalSource')}\n`;
+    info += `Modal Player: ${!!document.getElementById('videoModalPlayer')}\n\n`;
+    
+    // Test 2: Vérifier les URLs de vidéo
+    info += '=== TEST D\'ACCÈS AUX VIDÉOS ===\n';
+    const testUrls = [
+        '/uploads/gallery_videos/1/gallery_13/20250826212253_88bdbe9b8f38353d.mp4',
+        '/uploads/gallery_videos/1/gallery_13/20250826211019_c7bd86c7b05147a9.mp4'
+    ];
+    
+    testUrls.forEach((url, index) => {
+        fetch(url, { method: 'HEAD' })
+            .then(response => {
+                info += `Vidéo ${index + 1}: ${response.status === 200 ? '✅ OK' : '❌ ERREUR ' + response.status}\n`;
+                debugInfo.textContent = info;
+            })
+            .catch(error => {
+                info += `Vidéo ${index + 1}: ❌ ERREUR ${error.message}\n`;
+                debugInfo.textContent = info;
+            });
+    });
+    
+    debugInfo.textContent = info + 'Test en cours...';
+}
+</script>
+
+</body>
+</html>

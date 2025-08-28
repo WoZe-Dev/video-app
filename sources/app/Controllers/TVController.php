@@ -29,14 +29,14 @@ class TVController extends Controller
         $user = $_SESSION['user'];
         
         // Vérifier que l'utilisateur a accès au mode TV
-        if ($user['role'] !== 'viewer' && $user['role'] !== 'admin') {
+        if ($user['role'] !== 'user' && $user['role'] !== 'admin') {
             $this->redirect('/login');
         }
 
         $data = [
             'title' => 'Mode TV - BetweenUs',
             'user' => $user,
-            'isViewerMode' => ($user['role'] === 'viewer')
+            'isViewerMode' => ($user['role'] === 'user')
         ];
 
         $this->loadView('tv/index', $data);
